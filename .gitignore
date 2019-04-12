@@ -1,4 +1,6 @@
 nginx-sites-enabled.txt
+photos/
+config.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
