@@ -54,7 +54,7 @@ def confirm_email(token):
     except Exception as err:
         return '<h1>Ups, an error has occured... Please try again later</h1>'
 
-    return redirect("http://www.localhost:3000/login", code=302)
+    return redirect("https://moodportfolio.ml/login", code=302)
 
 
 
