@@ -7,6 +7,7 @@
 1. git clone https://github.com/robertszafa/api.moodportfolio.git
 2. cd api.moodportfolio
 3. pip install -r requirements.txt
+<br/>** it's recommended but not necessary that you install and run the whole thing in a virtualenv
 
 # Run
 1. python server.py
@@ -15,5 +16,6 @@
 - API endpoints are under /resources
 - if you create a new API endpoint, you have to also include it in server.py
 - if you install any new dependencies, update the requirements file with pip freeze > requirements.txt  
-- confirm email & reset password endpoints won't work locally unless you change the redirect from 'moodportfolio.ml' to 'localhost:3000'
+- confirm email & reset password endpoints won't work locally unless you change the redirect from 'moodportfolio.ml' to 'localhost:3000'.
+- flask mail won't work on eduroam if you test it on your localhost
 - if you do the above, don't forget to change it back
