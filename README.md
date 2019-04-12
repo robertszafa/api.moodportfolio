@@ -16,6 +16,4 @@
 - API endpoints are under /resources
 - if you create a new API endpoint, you have to also include it in server.py
 - if you install any new dependencies, update the requirements file with pip freeze > requirements.txt  
-- confirm email & reset password endpoints won't work locally unless you change the redirect from 'moodportfolio.ml' to 'localhost:3000'.
-- flask mail won't work on eduroam if you test it on your localhost
-- if you do the above, don't forget to change it back
+- confirm email & reset password endpoints won't work on eduroam if you test it on your localhost
