@@ -7,6 +7,7 @@
 1. git clone https://github.com/robertszafa/api.moodportfolio.git
 2. cd api.moodportfolio
 3. pip install -r requirements.txt
+** it's recommended but not necessary that you install and run the whole thing in a virtualenv
 
 # Run
 1. python server.py
