@@ -28,6 +28,7 @@ def test_SingleInstance(saved_model_path,img_path):
     print(pred_probs)
     emotion = np.argmax(pred_probs)
     print(emotion_table[emotion])
+	return emotion_table[emotion]
 
 def testSeveralInstances(saved_model_path,path_with_data):#,img_paths):
     model = ct.load_model(saved_model_path)
@@ -56,9 +57,9 @@ def preprocessTestImage(image_path,testingParams):
 
     image_data = Image.open(image_path)
     image_data.load()  
-    img_box = [0,0,48,48]
+    face_box = [0,0,48,48]
     # face rectangle #(48,48)
-    face_rc = Rect(img_box)
+    face_rc = Rect(face_box)
 
     distorted_image = distort_img(image_data, face_rc, 
                                             testingParams.width, 
