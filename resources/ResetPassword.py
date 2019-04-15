@@ -1,8 +1,8 @@
-from flask import request, jsonify, url_for, redirect
+from flask import request, jsonify
 from flask_restful import Resource
 from flask_mail import Message
 from config import mysql, mail, app
-from .helpers import _hash_password
+from .helpers import _hash_password, _encode_auth_token, _get_user_id, _authenticate_user, _verify_user, _get_user_email
 import random
 import string
 
@@ -24,22 +24,36 @@ class ResetPassword(Resource):
         except Exception as e:
             return jsonify({'emailSent' : False, 'error' : 'databaseError'})
         
-        msg = Message('Moodportfolio - Your New Password', sender='Moodportfolio', recipients=[email])
+        msg = Message('Your New Password - Moodportfolio', sender='Moodportfolio', recipients=[email])
         msg.body = f'Your new password is: {new_password}\n\nYou should change your password after you log in again'
         mail.send(msg)
 
         return jsonify({'emailSent' : True, 
                         'error' : ''})
 
+    def put(self):
+        try:
+            user_id = _authenticate_user(request)
+            new_password = request.json.get('newPassword')
+            current_password = request.json.get('currentPassword')
+        except Exception as e:
+            return jsonify({'success' : False, 'error' : 'incorrectInput'})
+        
+        if not _verify_user(_get_user_email(user_id), current_password).json.get('loggedIn'):
+            return jsonify({'success' : False, 'error' : 'wrongCurrentPassword'})
+        
+        password_hash = _hash_password(new_password)
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute(f"UPDATE User SET hashedPassword='{password_hash}' WHERE userID='{user_id}'")
+            mysql.connection.commit()
+            cur.close()
+        except Exception as e:
+            return jsonify({'success' : False, 'error' : 'databaseError'}) 
+
+        return jsonify({'success' : True, 'error' : ''}) 
 
 
 def _get_random_password():
     password_characters = string.ascii_letters + string.digits + string.punctuation
     return ''.join(random.choice(password_characters) for i in range(10))
-    # password = ''
-    # password.join(random.choice(string.ascii_uppercase) for i in range(3))
-    # password.join(random.choice(string.ascii_lowercase) for i in range(3))
-    # password.join(random.choice(string.punctuation) for i in range(3))
-    # password.join(random.choice(string.digits) for i in range(3))
-    
-    # return password

@@ -4,6 +4,13 @@ from .helpers import _email_exists, _authenticate_user, _get_user_info
 from config import mysql
 
 
+iso5218_gender = {
+    0: 'Not known',
+    1: 'Male',
+    2: 'Female',
+    9: 'Other',
+}
+
 class UserInfo(Resource):
     def post(self):
         user_id = _authenticate_user(request)
@@ -49,6 +56,8 @@ class UserInfo(Resource):
 
         user_info = _get_user_info(user_id)
         user_info['signupDate'] = user_info['signupDate'].strftime(f"%d/%m/%Y")
+        user_info['dob'] = user_info['dob'].strftime(f"%d/%m/%Y")
+        user_info['gender'] = iso5218_gender[user_info['gender']]
 
         return jsonify({'success': True, 'data': user_info})
 

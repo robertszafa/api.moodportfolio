@@ -80,6 +80,17 @@ def _get_user_id(email):
 
     return user_id
 
+def _get_user_email(user_id):
+    cur = mysql.connection.cursor()
+    if cur.execute('SELECT email FROM User WHERE userID=%s', [user_id]) < 1:
+        cur.close() 
+        return # no user with this email
+
+    email = cur.fetchone().get('email') 
+    cur.close() 
+
+    return email
+
 def _get_user_info(user_id):
     cur = mysql.connection.cursor()
     if cur.execute('SELECT email, name, gender, signupDate, dob, townCity, country, nominatedContact FROM User WHERE userID=%s', [user_id]) < 1:
@@ -104,7 +115,6 @@ def _get_num_of_photos(user_id):
 
     return num_of_photos
 
-# return tuple (verified, errors)
 def _verify_user(email, password):
     loggedIn = False
     auth_token = None
