@@ -38,8 +38,8 @@ def getData(folder,path_to_label_csv):
 
     return trainingValues
         
-def fineTuneModel(folder_with_data,path_to_label_csv,
-    original_model_path="../vgg13.model",max_epochs=15):
+def fineTuneModel(folder_with_data,path_to_label_csv="label.csv",
+    original_model_path="../vgg13.model",max_epochs=10):
 
     trainingValues = getData(folder_with_data,path_to_label_csv)
 
@@ -94,5 +94,14 @@ def fineTuneModel(folder_with_data,path_to_label_csv,
     #SAVE MODEL
     z.save("../vgg13.model")
 
-fineTuneModel("../data/FER2013Test","label.csv")
-#LABEL.CSV MUST BE IN THE FOLDER!!!!!
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-d", 
+                        "--base_folder", 
+                        type = str, 
+                        help = "Base folder containing the training images and label.csv, 
+                        required = True)
+    args = parser.parse_args()    
+    fineTuneModel(args.base_folder)
+    #LABEL.CSV MUST BE IN THE FOLDER!!!!!
