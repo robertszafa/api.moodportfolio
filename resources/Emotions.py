@@ -1,4 +1,4 @@
-from flask import request, jsonify
+ from flask import request, jsonify
 from flask_restful import Resource
 from config import mysql
 from .helpers import _authenticate_user, _get_num_of_photos, _get_place
@@ -23,7 +23,7 @@ class Emotions(Resource):
         # Last, write the bytes to a file.
         data_uri = request.json.get('dataUri')
         header, encoded = data_uri.split(",", 1)
-        data = b64decode(encoded)
+        imgData = b64decode(encoded)
         
         # store the photo dataURI in a txt file .photos/{user_id}/{photo_index}.txt
         photo_index = f'{_get_num_of_photos(user_id) + 1}.txt'
@@ -35,13 +35,15 @@ class Emotions(Resource):
 
         ############## CLASSIFY PHOTO HERE ###################################################
         # save as photos/{user_id}/{photo_index}.jpg (temporarily) and classify
-		#IMAGE MUST BE GRAYSCALED... test_SingleInstance will do the cropping... face must be in 48x48
+		#IMAGE can be jpeg/png and colored 
+		imgdata = base64.b64decode(str(base64_string))
 		saved_model_path = "../ai/vgg13.model"
-		img_path = 
-		emotion = test_SingleInstance(saved_model_path,img_path)
+		#img_path = 
+		emotion = test_SingleInstance(saved_model_path,imgData)
+		print(emotion)
         # photo_jpg_dir = f'photos/{user_id}/{photo_index}.jpg' 
         # with open(photo_jpg_dir, "wb") as f:
-        #     f.write(data)
+        #     f.write(imgData)
         #######################################################################################
 
         # get city, country

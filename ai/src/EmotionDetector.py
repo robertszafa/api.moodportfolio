@@ -18,17 +18,20 @@ emotion_table = {0 : 'neutral'  ,
                  6 : 'fear'     , 
                  7 :'contempt'  }
 
-def test_SingleInstance(saved_model_path,img_path):
+def test_SingleInstance(saved_model_path,imgData):
     model = ct.load_model(saved_model_path)
     out = ct.softmax(model)
-    
+    emotionAndConfidence={} #empty dictionary
+
     testingParams = Parameters(8,64,64, True, False)
-    img = preprocessTestImage(img_path,testingParams)
+    img = preprocessTestImage(imgData,testingParams)
     pred_probs = out.eval({out.arguments[0]:img})
-    print(pred_probs)
+    #convert pred_probs to a dictionary
+    for i in range(pred_probs[0].shape[0]):
+        emotionAndConfidence[emotion_table[i]] = pred_probs[0][i]
     emotion = np.argmax(pred_probs)
     print(emotion_table[emotion])
-	return emotion_table[emotion]
+    return emotionAndConfidence
 
 def testSeveralInstances(saved_model_path,path_with_data):#,img_paths):
     model = ct.load_model(saved_model_path)
@@ -53,13 +56,13 @@ def testSeveralInstances(saved_model_path,path_with_data):#,img_paths):
     print(pred)
     
 
-def preprocessTestImage(image_path,testingParams):
-
-    image_data = Image.open(image_path)
+def preprocessTestImage(imgData,testingParams):
+    
+    image_data = Image.open(io.BytesIO(imgdata)).convert('L') #grayscale
     image_data.load()  
-    face_box = [0,0,48,48]
+    img_box = [0,0,48,48]
     # face rectangle #(48,48)
-    face_rc = Rect(face_box)
+    face_rc = Rect(img_box)
 
     distorted_image = distort_img(image_data, face_rc, 
                                             testingParams.width, 
@@ -101,6 +104,6 @@ if __name__ == "__main__":
     else:
         testSeveralInstances(args.saved_model, args.img_path)
 
-# python -W ignore EmotionDetector.py -t 2 -m ../vgg13.model -d ../data/FER2013Test
+# python -W ignore EmotionDetector.py -t 1 -m ../vgg13.model -p 
 
-# python -W ignore EmotionDetector.py -t 1 -m ../vgg13.model -d ../data/FER2013Test
+# python -W ignore EmotionDetector.py -t 2 -m ../vgg13.model -p ../data/FER2013Test
