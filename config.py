@@ -36,4 +36,4 @@ mail = Mail(app)
 
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
-app.register_blueprint(api_bp, url_prefix='/api')
+app.register_blueprint(api_bp)

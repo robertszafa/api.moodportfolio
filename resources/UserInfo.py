@@ -55,9 +55,12 @@ class UserInfo(Resource):
             return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken'})
 
         user_info = _get_user_info(user_id)
-        user_info['signupDate'] = user_info['signupDate'].strftime(f"%d/%m/%Y")
-        user_info['dob'] = user_info['dob'] or user_info['dob'].strftime(f"%d/%m/%Y")
-        user_info['gender'] = iso5218_gender[user_info['gender']]
+        if user_info['signupDate']:
+            user_info['signupDate' ]= user_info['signupDate'].strftime(f"%d/%m/%Y")
+        if user_info['dob']:
+            user_info['dob'] = user_info['dob'] or user_info['dob'].strftime(f"%d/%m/%Y")
+        if user_info['gender']:
+            user_info['gender'] = iso5218_gender[user_info['gender']]
 
         return jsonify({'success': True, 'data': user_info})
 
