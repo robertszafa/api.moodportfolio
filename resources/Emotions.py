@@ -6,7 +6,7 @@ from base64 import b64decode
 import os
 import datetime
 
-from ../ai/src/EmotionDetector import test_SingleInstance
+# from ..ai.src.EmotionDetector import test_SingleInstance
 
 
 
@@ -36,9 +36,9 @@ class Emotions(Resource):
         ############## CLASSIFY PHOTO HERE ###################################################
         # save as photos/{user_id}/{photo_index}.jpg (temporarily) and classify
 		#IMAGE MUST BE GRAYSCALED... test_SingleInstance will do the cropping... face must be in 48x48
-		saved_model_path = "../ai/vgg13.model"
-		img_path = 
-		emotion = test_SingleInstance(saved_model_path,img_path)
+        # saved_model_path = "../ai/vgg13.model"
+        # img_path = 
+        # emotion = test_SingleInstance(saved_model_path,img_path)
         # photo_jpg_dir = f'photos/{user_id}/{photo_index}.jpg' 
         # with open(photo_jpg_dir, "wb") as f:
         #     f.write(data)

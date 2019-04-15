@@ -15,7 +15,7 @@ CREATE TABLE User
     signupDate DATETIME, 
     dob DATETIME, 
     townCity VARCHAR(50), 
-    country VARCHAR(50), 
+    country VARCHAR(2), 
     email VARCHAR(100), 
     admin BOOLEAN DEFAULT FALSE, 
     nominatedContact VARCHAR(100),
