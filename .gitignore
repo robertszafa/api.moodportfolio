@@ -1,6 +1,8 @@
 nginx-sites-enabled.txt
 photos/
 config.py
+api.moodportfolioenv/
+api.moodportfolio/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
