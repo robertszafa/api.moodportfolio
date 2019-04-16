@@ -8,14 +8,7 @@ import datetime
 import random
 # from .ai.src.EmotionDetector import test_SingleInstance
 
-emotions = (
-    'Neutral',
-    'Sad',
-    'Happy',
-    'Angry',
-    'Surprise',
-    'Fear',
-)
+
 
 
 class Emotions(Resource):
@@ -64,7 +57,20 @@ class Emotions(Resource):
             country, city = _get_place(latitude, longitude)
 
         # get random emotion for now, no one will notice anyway
-        emotion = '{"%s": "100"}' % (random.choice(emotions))
+        # emotion = '{"%s": "100"}' % (random.choice(emotions))
+        emotion = '''{
+            "Neutral": "%d",
+            "Sad": "%d",
+            "Happy": "%d",
+            "Angry": "%d",
+            "Surprise": "%d",
+            "Fear": "%d" }''' % (random.randint(0, 100), 
+                                 random.randint(0, 100),
+                                 random.randint(0, 100),
+                                 random.randint(0, 100),
+                                 random.randint(0, 100),
+                                 random.randint(0, 100),
+                                 )
         
         try:
             cur = mysql.connection.cursor()
