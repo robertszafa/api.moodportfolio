@@ -15,8 +15,8 @@ CORS(app)
 # MYSQL
 app.config['SECRET_KEY'] = 'the quick brown fox jumps over the lazy   dog'
 app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'DoNotPanic42'
+app.config['MYSQL_USER'] = 'team40'
+app.config['MYSQL_PASSWORD'] = 'Password12345!'
 app.config['MYSQL_DB'] = 'moodportfolio'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # EMAIL
