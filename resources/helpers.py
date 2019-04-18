@@ -102,7 +102,20 @@ def _get_user_info(user_id):
 
     return user_info
 
-def _get_num_of_photos(user_id):
+def _get_num_of_all_photos():
+    cur = mysql.connection.cursor()
+
+    try:
+        num_of_photos = cur.execute(f'SELECT * FROM Photo')
+        cur.close() 
+    except Exception as err:
+        print('Error at _get_num_of_photos:', err)
+        cur.close() 
+        return 0
+
+    return num_of_photos
+
+def _get_num_of_user_photos(user_id):
     cur = mysql.connection.cursor()
 
     try:

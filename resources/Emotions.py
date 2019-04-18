@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_restful import Resource
 from config import mysql
-from .helpers import _authenticate_user, _get_num_of_photos, _get_place
+from .helpers import _authenticate_user, _get_num_of_user_photos, _get_place
 from base64 import b64decode
 import os
 import datetime
@@ -18,7 +18,7 @@ class Emotions(Resource):
             latitude = request.json.get('latitude')
             longitude = request.json.get('longitude')
         except Exception as err:
-            return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'emotion' : ''})
+            return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'photoId': '', 'emotion' : ''})
 
         now = datetime.datetime.now()
         now.strftime('%Y-%m-%d %H:%M:%S')
@@ -30,11 +30,12 @@ class Emotions(Resource):
         
         
         # store the photo dataURI in a txt file .photos/{user_id}/{photo_index}.txt
-        photo_index = f'{_get_num_of_photos(user_id) + 1}.txt'
-        photo_uri_dir = f'photos/{user_id}/' 
-        if not os.path.exists(photo_uri_dir):
-            os.makedirs(photo_uri_dir)
-        with open(photo_uri_dir + photo_index, "w") as f:
+        photo_id = _get_num_of_user_photos(user_id) + 1 
+        photo_index = f'{photo_id}.txt'
+        photo_path = f'photos/{user_id}/{photo_index}'
+        if not os.path.exists(f'photos/{user_id}'):
+            os.makedirs(f'photos/{user_id}')
+        with open(photo_path, "w") as f:
             f.write(data_uri)
 
         ############## CLASSIFY PHOTO HERE ###################################################
@@ -59,12 +60,16 @@ class Emotions(Resource):
         # get random emotion for now, no one will notice anyway
         # emotion = '{"%s": "100"}' % (random.choice(emotions))
         emotion = '''{
-            "Neutral": "%d",
-            "Sad": "%d",
-            "Happy": "%d",
-            "Angry": "%d",
-            "Surprise": "%d",
-            "Fear": "%d" }''' % (random.randint(0, 100), 
+            "neutral": "%d",
+            "happiness": "%d",
+            "surprise": "%d",
+            "sadness": "%d",
+            "anger": "%d",
+            "disgust": "%d",
+            "fear": "%d",
+            "contempt": "%d" }''' % (random.randint(0, 100), 
+                                 random.randint(0, 100),
+                                 random.randint(0, 100),
                                  random.randint(0, 100),
                                  random.randint(0, 100),
                                  random.randint(0, 100),
@@ -75,12 +80,12 @@ class Emotions(Resource):
         try:
             cur = mysql.connection.cursor()
             cur.execute("INSERT INTO Photo(userID, timestamp, path, emotion, city, country) VALUES(%s, %s, %s, %s, %s, %s)",
-                        (user_id, now, photo_uri_dir, emotion, city, country))
+                        (user_id, now, photo_path, emotion, city, country))
             mysql.connection.commit()
             cur.close()
         except Exception as err:
             print(err)
-            return jsonify({'success': False, 'error': 'databaseError', 'emotion' : ''})
+            return jsonify({'success': False, 'error': 'databaseError', 'photoId': '', 'emotion' : ''})
 
 
-        return jsonify({'success': True, 'error': '', 'emotion': emotion})
+        return jsonify({'success': True, 'error': '', 'photoPath': photo_path, 'emotion': emotion})

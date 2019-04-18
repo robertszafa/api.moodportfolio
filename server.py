@@ -9,6 +9,7 @@ from resources.UserExists import UserExists
 from resources.Emotions import Emotions
 from resources.ResetPassword import ResetPassword
 from resources.UserInfo import UserInfo
+from resources.PhotoDescription import PhotoDescription
 
 
 api.add_resource(Register, '/Register')
@@ -17,6 +18,7 @@ api.add_resource(Login, '/Login')
 api.add_resource(Emotions, '/Emotions')
 api.add_resource(ResetPassword, '/ResetPassword')
 api.add_resource(UserInfo, '/UserInfo')
+api.add_resource(PhotoDescription, '/PhotoDescription')
 
 
 
