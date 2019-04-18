@@ -6,19 +6,21 @@ from base64 import b64decode
 import os
 import datetime
 import random
+import json
 # from .ai.src.EmotionDetector import test_SingleInstance
 
 
 
 
-class Emotions(Resource):
+class ClassifyEmotion(Resource):
     def post(self):
         try:
             user_id = _authenticate_user(request)
             latitude = request.json.get('latitude')
             longitude = request.json.get('longitude')
         except Exception as err:
-            return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'photoId': '', 'emotion' : ''})
+            return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'photoId': '', 
+                            'emotion' : '', 'dominantEmotion': ''})
 
         now = datetime.datetime.now()
         now.strftime('%Y-%m-%d %H:%M:%S')
@@ -59,33 +61,32 @@ class Emotions(Resource):
 
         # get random emotion for now, no one will notice anyway
         # emotion = '{"%s": "100"}' % (random.choice(emotions))
-        emotion = '''{
-            "neutral": "%d",
-            "happiness": "%d",
-            "surprise": "%d",
-            "sadness": "%d",
-            "anger": "%d",
-            "disgust": "%d",
-            "fear": "%d",
-            "contempt": "%d" }''' % (random.randint(0, 100), 
-                                 random.randint(0, 100),
-                                 random.randint(0, 100),
-                                 random.randint(0, 100),
-                                 random.randint(0, 100),
-                                 random.randint(0, 100),
-                                 random.randint(0, 100),
-                                 random.randint(0, 100),
-                                 )
+        emotions = {}
+        emotions['neutral'] = random.randint(0, 100)
+        emotions['happiness'] = random.randint(0, 100) 
+        emotions['surprise'] = random.randint(0, 100) 
+        emotions['sadness'] = random.randint(0, 100) 
+        emotions['anger'] = random.randint(0, 100) 
+        emotions['disgust'] = random.randint(0, 100) 
+        emotions['fear'] = random.randint(0, 100) 
+        emotions['contempt'] = random.randint(0, 100) 
+
+        emotions_json = {key:value for (key,value) in emotions.items()}
+
+        dominant_emotion = max(emotions, key=emotions.get)
+        # emotions = json.dumps(emotions_json)      
         
         try:
             cur = mysql.connection.cursor()
             cur.execute("INSERT INTO Photo(userID, timestamp, path, emotion, city, country) VALUES(%s, %s, %s, %s, %s, %s)",
-                        (user_id, now, photo_path, emotion, city, country))
+                        (user_id, now, photo_path, json.dumps(emotions), city, country))
             mysql.connection.commit()
             cur.close()
         except Exception as err:
             print(err)
-            return jsonify({'success': False, 'error': 'databaseError', 'photoId': '', 'emotion' : ''})
+            return jsonify({'success': False, 'error': 'databaseError', 'photoId': '', 
+                            'emotion' : '', 'dominantEmotion': ''})
 
 
-        return jsonify({'success': True, 'error': '', 'photoPath': photo_path, 'emotion': emotion})
+        return jsonify({'success': True, 'error': '', 'photoPath': photo_path, 
+                        'emotion': emotions_json, 'dominantEmotion': {dominant_emotion: emotions[dominant_emotion]}})

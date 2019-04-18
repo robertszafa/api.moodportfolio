@@ -140,8 +140,6 @@ def _verify_user(email, password):
     else:
         loggedIn = sha256_crypt.verify(password, password_hash)
 
-
-
     if not loggedIn:
         error = 'wrongCredentials'
     else:
@@ -159,3 +157,11 @@ def _get_place(lat, lon):
     cc = loc_data[0]['cc']
     city = loc_data[0]['admin2']
     return cc, city
+
+
+def _convert_to_datetime(human_date):
+    day = int(human_date.split('/')[0])
+    month = int(human_date.split('/')[1])
+    year = int(human_date.split('/')[2])
+
+    return datetime(year, month, day)
