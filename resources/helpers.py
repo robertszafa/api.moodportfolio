@@ -165,3 +165,6 @@ def _convert_to_datetime(human_date):
     year = int(human_date.split('/')[2])
 
     return datetime(year, month, day)
+
+def _dict_to_json(dictionary):
+    return {key:value for (key,value) in dictionary.items()}
