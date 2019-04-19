@@ -29,13 +29,13 @@ class EmotionsQuery(Resource):
         if based_on == BASED_ON_ALL:
             try:
                 cur = mysql.connection.cursor()
-                cur.execute("SELECT emotion, timestamp, path FROM Photo WHERE (timestamp BETWEEN %s AND %s) AND UserID=%s",
+                cur.execute("SELECT emotion, timestamp, path, photoID FROM Photo WHERE (timestamp BETWEEN %s AND %s) AND UserID=%s",
                             (start_date, end_date, user_id))
                 emotions = cur.fetchall()
                 cur.close()
             except Exception as err:
                 print(err)
                 return jsonify({'success': False, 'error': 'databaseError', 'emotions': ''})
-        
 
-        return jsonify({'success': True, 'error': '', 'emotions': emotions})
+
+        return jsonify({'success': True, 'error': '', 'result': emotions})

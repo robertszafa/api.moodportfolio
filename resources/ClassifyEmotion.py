@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_restful import Resource
 from config import mysql
-from .helpers import _authenticate_user, _get_num_of_user_photos, _get_place
+from .helpers import _authenticate_user, _get_num_of_user_photos, _get_place, _dict_to_json
 from base64 import b64decode
 import os
 import datetime
@@ -71,10 +71,7 @@ class ClassifyEmotion(Resource):
         emotions['fear'] = random.randint(0, 100) 
         emotions['contempt'] = random.randint(0, 100) 
 
-        emotions_json = {key:value for (key,value) in emotions.items()}
-
         dominant_emotion = max(emotions, key=emotions.get)
-        # emotions = json.dumps(emotions_json)      
         
         try:
             cur = mysql.connection.cursor()
@@ -85,8 +82,8 @@ class ClassifyEmotion(Resource):
         except Exception as err:
             print(err)
             return jsonify({'success': False, 'error': 'databaseError', 'photoId': '', 
-                            'emotion' : '', 'dominantEmotion': ''})
+                            'emotion': '', 'dominantEmotion': ''})
 
 
         return jsonify({'success': True, 'error': '', 'photoPath': photo_path, 
-                        'emotion': emotions_json, 'dominantEmotion': {dominant_emotion: emotions[dominant_emotion]}})
+                        'emotion': _dict_to_json(emotions), 'dominantEmotion': {dominant_emotion: emotions[dominant_emotion]}})

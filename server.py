@@ -11,6 +11,7 @@ from resources.ResetPassword import ResetPassword
 from resources.UserInfo import UserInfo
 from resources.PhotoDescription import PhotoDescription
 from resources.EmotionsQuery import EmotionsQuery
+from resources.PhotoUri import PhotoUri
 
 
 api.add_resource(Register, '/Register')
@@ -21,6 +22,7 @@ api.add_resource(ResetPassword, '/ResetPassword')
 api.add_resource(UserInfo, '/UserInfo')
 api.add_resource(PhotoDescription, '/PhotoDescription')
 api.add_resource(EmotionsQuery, '/EmotionsQuery')
+api.add_resource(PhotoUri, '/PhotoUri')
 
 
 
