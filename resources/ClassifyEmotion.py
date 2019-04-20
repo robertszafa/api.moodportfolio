@@ -20,7 +20,7 @@ class ClassifyEmotion(Resource):
             longitude = request.json.get('longitude')
         except Exception as err:
             return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'photoId': '', 
-                            'emotion' : '', 'dominantEmotion': ''})
+                            'photoPath': '', 'emotion' : '', 'dominantEmotion': ''})
 
         now = datetime.datetime.now()
         now.strftime('%Y-%m-%d %H:%M:%S')
@@ -77,13 +77,14 @@ class ClassifyEmotion(Resource):
             cur = mysql.connection.cursor()
             cur.execute("INSERT INTO Photo(userID, timestamp, path, emotion, city, country) VALUES(%s, %s, %s, %s, %s, %s)",
                         (user_id, now, photo_path, json.dumps(emotions), city, country))
+            photo_id = cur.lastrowid
             mysql.connection.commit()
             cur.close()
         except Exception as err:
             print(err)
-            return jsonify({'success': False, 'error': 'databaseError', 'photoId': '', 
-                            'emotion': '', 'dominantEmotion': ''})
+            return jsonify({'success': False, 'error': 'databaseError', 'photoPath': photo_path, 
+                            'photoId': '', 'emotion': '', 'dominantEmotion': ''})
 
 
-        return jsonify({'success': True, 'error': '', 'photoPath': photo_path, 
+        return jsonify({'success': True, 'error': '', 'photoPath': photo_path, 'photoId': photo_id,
                         'emotion': _dict_to_json(emotions), 'dominantEmotion': {dominant_emotion: emotions[dominant_emotion]}})

@@ -9,15 +9,15 @@ class PhotoDescription(Resource):
     def post(self):
         try:
             user_id = _authenticate_user(request)
-            photo_path =  request.json.get('photoPath')
+            photo_id =  request.json.get('photoId')
             description = request.json.get('description')
         except Exception as err:
             return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken'})
 
         try:
             cur = mysql.connection.cursor()
-            cur.execute("UPDATE Photo SET description=%s WHERE userID=%s AND path=%s", 
-                        (description, user_id, photo_path))
+            cur.execute("UPDATE Photo SET description=%s WHERE userID=%s AND photoID=%s", 
+                        (description, user_id, photo_id))
             mysql.connection.commit()
             cur.close()
         except Exception as err:

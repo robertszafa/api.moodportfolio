@@ -158,6 +158,22 @@ def _get_place(lat, lon):
     city = loc_data[0]['admin2']
     return cc, city
 
+def _get_photo_uri(photo_id):
+    cur = mysql.connection.cursor()
+
+    try:
+        path = cur.execute(f'SELECT path FROM Photo WHERE photoID={photo_id}')
+        cur.close() 
+    except Exception as err:
+        print('Error at _get_photo_uri:', err)
+        cur.close() 
+    
+    photo_uri = ""
+    if path:
+        with open(path, "r") as f:
+            photo_uri = f.read()
+
+    return photo_uri
 
 def _convert_to_datetime(human_date):
     day = int(human_date.split('/')[0])
