@@ -41,17 +41,17 @@ class ClassifyEmotion(Resource):
             f.write(data_uri)
 
         ############## CLASSIFY PHOTO HERE ###################################################
-        # save as photos/{user_id}/{photo_index}.jpg (temporarily) and classify
-		#IMAGE can be jpeg/png and colored 
-        # img_data = b64decode(encoded)
-        # saved_model_path = "../ai/vgg13.model"
-		#img_path = 
-        # emotion = test_SingleInstance(saved_model_path,imgData)
-        # print(emotion)
-        # photo_jpg_dir = f'photos/{user_id}/{photo_index}.jpg' 
-        # with open(photo_jpg_dir, "wb") as f:
-        #     f.write(imgData)
-        #######################################################################################
+	# save as photos/{user_id}/{photo_index}.jpg (temporarily) and classify
+	img_data = b64decode(encoded)
+	full_path = os.path.dirname(os.path.realpath(__file__))	
+	model_file_path = os.path.join(full_path,"vgg13.model")
+	emotions = test_SingleInstance(model_file_path,img_data)
+	print(emotions)
+	dominant_emotion = max(emotions, key=emotions.get)
+	photo_jpg_dir = f'photos/{user_id}/{photo_index}.jpg' 
+	with open(photo_jpg_dir, "wb") as f:
+		f.write(imgData)
+	#######################################################################################
 
         # get city, country
         country = ''
