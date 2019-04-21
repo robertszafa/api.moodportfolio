@@ -5,9 +5,9 @@ from PIL import Image
 import pandas as pd
 import io
 
-from img_preprocess import distort_img,compute_norm_mat,preproc_img
-from rect_util import Rect
-from loadData import Parameters
+from .img_preprocess import distort_img,compute_norm_mat,preproc_img
+from .rect_util import Rect
+from .loadData import Parameters
 
 
 emotion_table = {0 : 'neutral'  , 
@@ -20,19 +20,21 @@ emotion_table = {0 : 'neutral'  ,
                  7 :'contempt'  }
 
 def test_SingleInstance(saved_model_path,imgData):
-    model = ct.load_model(saved_model_path)
-    out = ct.softmax(model)
-    emotionAndConfidence={} #empty dictionary
+    
+	emotionAndConfidence={} #empty dictionary
 
-    testingParams = Parameters(8,64,64, True, False)
-    img = preprocessTestImage(imgData,testingParams)
-    pred_probs = out.eval({out.arguments[0]:img})
-    #convert pred_probs to a dictionary
-    for i in range(pred_probs[0].shape[0]):
-        emotionAndConfidence[emotion_table[i]] = pred_probs[0][i]
-    emotion = np.argmax(pred_probs)
-    print(emotion_table[emotion])
-    return emotionAndConfidence
+	testingParams = Parameters(8,64,64, True, False)
+	img = preprocessTestImage(imgData,testingParams)
+
+	model = ct.load_model(saved_model_path)
+	out = ct.softmax(model)
+	pred_probs = out.eval({out.arguments[0]:img})
+	#convert pred_probs to a dictionary
+	for i in range(pred_probs[0].shape[0]):
+		emotionAndConfidence[emotion_table[i]] = pred_probs[0][i]
+	emotion = np.argmax(pred_probs)
+	print(emotion_table[emotion])
+	return emotionAndConfidence
 
 def testSeveralInstances(saved_model_path,path_with_data):#,img_paths):
     model = ct.load_model(saved_model_path)
@@ -59,26 +61,26 @@ def testSeveralInstances(saved_model_path,path_with_data):#,img_paths):
 
 def preprocessTestImage(imgData,testingParams):
     
-    image_data = Image.open(io.BytesIO(imgdata)).convert('L') #grayscale
-    image_data.load()  
-    img_box = [0,0,48,48]
-    # face rectangle #(48,48)
-    face_rc = Rect(img_box)
+	image_data = Image.open(io.BytesIO(imgData)).convert('L') #grayscale
+	image_data.load()  
+	img_box = [0,0,48,48]
+	# face rectangle #(48,48)
+	face_rc = Rect(img_box)
 
-    distorted_image = distort_img(image_data, face_rc, 
-                                            testingParams.width, 
-                                            testingParams.height, 
-                                            testingParams.max_shift, 
-                                            testingParams.max_scale, 
-                                            testingParams.max_angle, 
-                                            testingParams.max_skew, 
-                                            testingParams.do_flip)
-    A, A_pinv = compute_norm_mat(testingParams.width,
-        testingParams.height)
-    final_image = preproc_img(distorted_image, A=A, A_pinv=A_pinv)
-    final_image = np.expand_dims(final_image, axis=0)
+	distorted_image = distort_img(image_data, face_rc, 
+											testingParams.width, 
+											testingParams.height, 
+											testingParams.max_shift, 
+											testingParams.max_scale, 
+											testingParams.max_angle, 
+											testingParams.max_skew, 
+											testingParams.do_flip)
+	A, A_pinv = compute_norm_mat(testingParams.width,
+		testingParams.height)
+	final_image = preproc_img(distorted_image, A=A, A_pinv=A_pinv)
+	final_image = np.expand_dims(final_image, axis=0)
 
-    return final_image
+	return final_image
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
