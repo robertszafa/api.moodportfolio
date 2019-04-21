@@ -7,7 +7,7 @@ import os
 import datetime
 import random
 import json
-# from .ai.src.EmotionDetector import test_SingleInstance
+from .ai.EmotionDetector import test_SingleInstance
 
 
 
