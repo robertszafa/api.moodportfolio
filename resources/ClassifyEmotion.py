@@ -7,9 +7,7 @@ import os
 import datetime
 import random
 import json
-# from .ai.src.EmotionDetector import test_SingleInstance
-
-
+from .ai.EmotionDetector import test_SingleInstance
 
 
 class ClassifyEmotion(Resource):
@@ -19,8 +17,8 @@ class ClassifyEmotion(Resource):
             latitude = request.json.get('latitude')
             longitude = request.json.get('longitude')
         except Exception as err:
-            return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'photoId': '', 
-                            'photoPath': '', 'emotion' : '', 'dominantEmotion': ''})
+            return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'photoId': '',
+                            'emotion' : '', 'dominantEmotion': ''})
 
         now = datetime.datetime.now()
         now.strftime('%Y-%m-%d %H:%M:%S')
@@ -29,29 +27,31 @@ class ClassifyEmotion(Resource):
         # Call base64.b64decode to decode that to bytes. Last, write the bytes to a file.
         data_uri = request.json.get('dataUri')
         header, encoded = data_uri.split(",", 1)
-        
-        
+
         # store the photo dataURI in a txt file .photos/{user_id}/{photo_index}.txt
-        photo_id = _get_num_of_user_photos(user_id) + 1 
+        photo_id = _get_num_of_user_photos(user_id) + 1
         photo_index = f'{photo_id}.txt'
         photo_path = f'photos/{user_id}/{photo_index}'
         if not os.path.exists(f'photos/{user_id}'):
-            os.makedirs(f'photos/{user_id}')
+                os.makedirs(f'photos/{user_id}')
         with open(photo_path, "w") as f:
-            f.write(data_uri)
+                f.write(data_uri)
+
 
         ############## CLASSIFY PHOTO HERE ###################################################
-        # save as photos/{user_id}/{photo_index}.jpg (temporarily) and classify
-		#IMAGE can be jpeg/png and colored 
-        # img_data = b64decode(encoded)
-        # saved_model_path = "../ai/vgg13.model"
-		#img_path = 
-        # emotion = test_SingleInstance(saved_model_path,imgData)
-        # print(emotion)
-        # photo_jpg_dir = f'photos/{user_id}/{photo_index}.jpg' 
-        # with open(photo_jpg_dir, "wb") as f:
-        #     f.write(imgData)
+        img_data = b64decode(encoded)
+        full_path = os.path.dirname(os.path.realpath(__file__))
+        model_file_path = os.path.join(full_path,"vgg13.model")
+        emotions = test_SingleInstance(model_file_path,img_data)
         #######################################################################################
+
+        # covert to int
+        for key in emotions.keys():
+            emotions[key] = int(emotions[key] * 100)
+
+        dominant_emotion = max(emotions, key=emotions.get)
+
+        print(emotions)
 
         # get city, country
         country = ''
@@ -59,32 +59,21 @@ class ClassifyEmotion(Resource):
         if latitude and longitude:
             country, city = _get_place(latitude, longitude)
 
-        # get random emotion for now, no one will notice anyway
-        # emotion = '{"%s": "100"}' % (random.choice(emotions))
-        emotions = {}
-        emotions['neutral'] = random.randint(0, 100)
-        emotions['happiness'] = random.randint(0, 100) 
-        emotions['surprise'] = random.randint(0, 100) 
-        emotions['sadness'] = random.randint(0, 100) 
-        emotions['anger'] = random.randint(0, 100) 
-        emotions['disgust'] = random.randint(0, 100) 
-        emotions['fear'] = random.randint(0, 100) 
-        emotions['contempt'] = random.randint(0, 100) 
-
-        dominant_emotion = max(emotions, key=emotions.get)
-        
         try:
             cur = mysql.connection.cursor()
             cur.execute("INSERT INTO Photo(userID, timestamp, path, emotion, city, country) VALUES(%s, %s, %s, %s, %s, %s)",
-                        (user_id, now, photo_path, json.dumps(emotions), city, country))
+                                (user_id, now, photo_path, json.dumps(emotions), city, country))
             photo_id = cur.lastrowid
             mysql.connection.commit()
             cur.close()
         except Exception as err:
             print(err)
-            return jsonify({'success': False, 'error': 'databaseError', 'photoPath': photo_path, 
-                            'photoId': '', 'emotion': '', 'dominantEmotion': ''})
+            return jsonify({'success': False, 'error': 'databaseError', 'photoId': '', 'emotion': '', 'dominantEmotion': ''})
 
 
-        return jsonify({'success': True, 'error': '', 'photoPath': photo_path, 'photoId': photo_id,
-                        'emotion': _dict_to_json(emotions), 'dominantEmotion': {dominant_emotion: emotions[dominant_emotion]}})
+
+        return jsonify({'success': True, 'error': '', 'photoId': photo_id, 'emotion': emotions, 'dominantEmotion': {dominant_emotion: emotions[dominant_emotion]}})
+
+
+
+

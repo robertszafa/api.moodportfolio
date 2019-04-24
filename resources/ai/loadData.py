@@ -2,8 +2,8 @@ import os
 import numpy as np
 import pandas as pd
 from PIL import Image
-import img_preprocess as imgUtils
-from rect_util import Rect
+from .img_preprocess import compute_norm_mat,preproc_img,distort_img
+from .rect_util import Rect
 
 class Parameters(object): #useful for individual testing...
     '''
