@@ -20,8 +20,8 @@ class ClassifyEmotion(Resource):
             return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'photoId': '',
                             'emotion' : '', 'dominantEmotion': ''})
 
-        now = datetime.datetime.now()
-        now.strftime('%Y-%m-%d %H:%M:%S')
+		now = datetime.datetime.now()
+		now.strftime('%Y-%m-%d %H:%M:%S')
 
         # Split the data URI on the comma to get the base64 encoded data without the header. 
         # Call base64.b64decode to decode that to bytes. Last, write the bytes to a file.
