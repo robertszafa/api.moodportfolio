@@ -184,3 +184,13 @@ def _convert_to_datetime(human_date):
 
 def _dict_to_json(dictionary):
     return {key:value for (key,value) in dictionary.items()}
+
+def _get_tag_id(tag_name):
+    cur = mysql.connection.cursor()
+    tag_id = ''
+    # check if tag already exists
+    if cur.execute("SELECT tagID FROM Tag WHERE name=%s", (tag_name)) > 0:
+        tag_id = cur.fetchone()
+    cur.close() 
+    
+    return tag_id

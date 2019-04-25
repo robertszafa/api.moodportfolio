@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_restful import Resource
 from config import mysql
-from .helpers import _authenticate_user
+from .helpers import _authenticate_user, _get_tag_id
 from base64 import b64decode
 import os
 import datetime
@@ -17,13 +17,10 @@ class PhotoTag(Resource):
         except Exception as err:
             return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'tagId': ''})
 
-
         try:
             cur = mysql.connection.cursor()
 
-            # check if tag already exists
-            if cur.execute("SELECT tagID FROM Tag WHERE name=%s", (tag_name)) > 0:
-                tag_id = cur.fetchone()
+            tag_id= _get_tag_id(tag_name)
 
             if tag_id:
                 cur.execute("INSERT INTO Photo_Tag(photoID, tagID) VALUES(%s, %s)", (photo_id, tag_id))
@@ -42,6 +39,7 @@ class PhotoTag(Resource):
 
 
         return jsonify({'success': True, 'error': '', 'tagId': tag_id})
+
 
     def get(self):
         try:
@@ -64,6 +62,7 @@ class PhotoTag(Resource):
  
         return jsonify({'success': True, 'error': '', 'photoTags': tag_id})
 
+
     def delete(self):
         try:
             user_id = _authenticate_user(request)
@@ -75,10 +74,16 @@ class PhotoTag(Resource):
         try:
             cur = mysql.connection.cursor()
             cur.execute("DELETE FROM Photo_Tag WHERE photoID=%s AND tagID=%s", (photo_id, tag_id))
+            cur.execute("UPDATE Tag SET count=count-1 WHERE tagID=%s", (tag_id))
+
+            # delete tag from Tag table if count == 0
+            cur.execute("SELECT count FROM Tag WHERE tagID=%s", (tag_id))
+            if (cur.fetchone() < 1):
+                cur.execute("DELETE FROM Tag WHERE tagID=%s", (tag_id))
+
             cur.close()
         except Exception as err:
             print(err)
             return jsonify({'success': False, 'error': 'databaseError'})
-
  
         return jsonify({'success': True, 'error': ''})
