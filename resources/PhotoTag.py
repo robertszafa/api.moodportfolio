@@ -41,7 +41,7 @@ class PhotoTag(Resource):
             return jsonify({'success': False, 'error': 'databaseError', 'tagId': tag_id})
 
 
-        return jsonify({'success': False, 'error': '', 'tagId': tag_id})
+        return jsonify({'success': True, 'error': '', 'tagId': tag_id})
 
     def get(self):
         try:
@@ -56,13 +56,29 @@ class PhotoTag(Resource):
             if cur.execute("SELECT tagID FROM Photo_Tag WHERE photoID=%s", (photo_id)) > 0:
                 tag_id = cur.fetchall()
 
-            print(tag_id)
-
             cur.close()
         except Exception as err:
             print(err)
             return jsonify({'success': False, 'error': 'databaseError', 'photoTags': tag_id})
 
  
-        return jsonify({'success': False, 'error': '', 'photoTags': tag_id})
+        return jsonify({'success': True, 'error': '', 'photoTags': tag_id})
 
+    def delete(self):
+        try:
+            user_id = _authenticate_user(request)
+            photo_id = request.headers.get('PhotoId')
+            tag_id = request.headers.get('TagId')
+        except Exception as err:
+            return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken'})
+        
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("DELETE FROM Photo_Tag WHERE photoID=%s AND tagID=%s", (photo_id, tag_id))
+            cur.close()
+        except Exception as err:
+            print(err)
+            return jsonify({'success': False, 'error': 'databaseError'})
+
+ 
+        return jsonify({'success': True, 'error': ''})
