@@ -91,16 +91,17 @@ def _get_user_email(user_id):
 
 	return email
 
-	def _get_user_info(user_id):
-	cur = mysql.connection.cursor()
-	if cur.execute('SELECT email, name, gender, signupDate, dob, townCity, country, nominatedContact FROM User WHERE userID=%s', [user_id]) < 1:
-		cur.close() 
-		return # no user with this ID
+def _get_user_info(user_id):
+    cur = mysql.connection.cursor()
+    
+    if cur.execute('SELECT email, name, gender, signupDate, dob, townCity, country, nominatedContact FROM User WHERE userID=%s', [user_id]) < 1:
+        cur.close() 
+        return # no user with this ID
 
-	user_info = cur.fetchone() 
-	cur.close() 
+    user_info = cur.fetchone() 
+    cur.close() 
 
-	return user_info
+    return user_info
 
 def _get_num_of_all_photos():
 	cur = mysql.connection.cursor()

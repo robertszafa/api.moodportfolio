@@ -14,12 +14,13 @@ BASED_ON_TAG = 'tag'
 
 
 class EmotionsQuery(Resource):
-	def post(self):
+	def get(self):
 		try:
 			user_id = _authenticate_user(request)
-			based_on = request.json.get('basedOn')
-			start_date = request.json.get('startDate')
-			end_date = request.json.get('endDate')
+			based_on = request.headers.get('BasedOn')
+			start_date = request.headers.get('StartDate')
+			end_date = request.headers.get('EndDate')
+			limit = request.headers.get('Limit')
 		except Exception as err:
 			return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'emotions': ''})
 
@@ -29,8 +30,12 @@ class EmotionsQuery(Resource):
 		if based_on == BASED_ON_ALL:
 			try:
 				cur = mysql.connection.cursor()
-				cur.execute("SELECT emotion, timestamp, photoID FROM Photo WHERE (timestamp BETWEEN %s AND %s) AND UserID=%s",
-							(start_date, end_date, user_id))
+				if limit:
+					cur.execute("SELECT emotion, timestamp, photoID FROM Photo WHERE (timestamp BETWEEN %s AND %s) AND UserID=%s LIMIT %d",
+								(start_date, end_date, user_id, limit))
+				else:
+					cur.execute("SELECT emotion, timestamp, photoID FROM Photo WHERE (timestamp BETWEEN %s AND %s) AND UserID=%s",
+								(start_date, end_date, user_id))
 				emotions = cur.fetchall()
 				cur.close()
 			except Exception as err:
