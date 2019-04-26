@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_restful import Resource
 from config import mysql
-from .helpers import _authenticate_user, _get_num_of_user_photos, _get_place, _dict_to_json
+from .helpers import _authenticate_user, _get_next_photo_id, _get_place, _dict_to_json
 from base64 import b64decode
 import os
 import datetime
@@ -29,7 +29,7 @@ class ClassifyEmotion(Resource):
         header, encoded = data_uri.split(",", 1)
 
         # store the photo dataURI in a txt file .photos/{user_id}/{photo_index}.txt
-        photo_id = _get_num_of_user_photos(user_id) + 1
+        photo_id = _get_next_photo_id()
         photo_index = f'{photo_id}.txt'
         photo_path = f'photos/{user_id}/{photo_index}'
         if not os.path.exists(f'photos/{user_id}'):
