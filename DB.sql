@@ -34,7 +34,8 @@ CREATE TABLE Photo
     city VARCHAR(255), 
     country CHAR(2), 
     description VARCHAR(280), 
-    PRIMARY KEY (photoID)
+    PRIMARY KEY (photoID),
+    FOREIGN KEY (userID) REFERENCES User (userID)
 );
 --ALTER TABLE Photo_Table ADD PRIMARY KEY (photoID);
 
