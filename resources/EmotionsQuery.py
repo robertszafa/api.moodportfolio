@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_restful import Resource
 from config import mysql
-from .helpers import _authenticate_user, _get_num_of_user_photos, _get_place, _convert_to_datetime
+from .helpers import _authenticate_user, _get_place, _convert_to_datetime
 from base64 import b64decode
 import os
 import datetime
@@ -24,15 +24,17 @@ class EmotionsQuery(Resource):
 		except Exception as err:
 			return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'emotions': ''})
 
-		start_date = _convert_to_datetime(start_date)
-		end_date = _convert_to_datetime(end_date)
+		if start_date and end_date:
+			start_date = _convert_to_datetime(start_date)
+			end_date = _convert_to_datetime(end_date)
 
+		emotions = None
 		if based_on == BASED_ON_ALL:
 			try:
 				cur = mysql.connection.cursor()
 				if limit:
-					cur.execute("SELECT emotion, timestamp, photoID FROM Photo WHERE (timestamp BETWEEN %s AND %s) AND UserID=%s LIMIT %d",
-								(start_date, end_date, user_id, limit))
+					cur.execute("SELECT emotion, timestamp, photoID FROM Photo WHERE UserID=%s LIMIT %s",
+								(user_id, int(limit)))
 				else:
 					cur.execute("SELECT emotion, timestamp, photoID FROM Photo WHERE (timestamp BETWEEN %s AND %s) AND UserID=%s",
 								(start_date, end_date, user_id))
@@ -41,5 +43,6 @@ class EmotionsQuery(Resource):
 			except Exception as err:
 				print(err)
 				return jsonify({'success': False, 'error': 'databaseError', 'emotions': ''})
+		
 
 		return jsonify({'success': True, 'error': '', 'result': emotions})

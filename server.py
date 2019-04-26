@@ -24,6 +24,7 @@ api.add_resource(UserInfo, '/UserInfo')
 api.add_resource(PhotoDescription, '/PhotoDescription')
 api.add_resource(EmotionsQuery, '/EmotionsQuery')
 api.add_resource(PhotoTag, '/PhotoTag')
+api.add_resource(PhotoUri, '/PhotoUri')
 
 
 

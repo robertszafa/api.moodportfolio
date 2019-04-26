@@ -116,18 +116,19 @@ def _get_num_of_all_photos():
 
 	return num_of_photos
 
-def _get_num_of_user_photos(user_id):
-	cur = mysql.connection.cursor()
-
+def _get_next_photo_id():
 	try:
-		num_of_photos = cur.execute(f'SELECT * FROM Photo WHERE userID={user_id}')
-		cur.close() 
+		cur = mysql.connection.cursor()
+		cur.execute('SELECT photoID FROM Photo ORDER BY photoID DESC LIMIT 1')
+		next_id = cur.fetchone()
+		cur.close()
+		return next_id['photoID'] + 1
 	except Exception as err:
-		print('Error at _get_num_of_photos:', err)
-		cur.close() 
-		return 0
+		cur.close()
+		print(err)
+	
+	return 1
 
-	return num_of_photos
 
 def _verify_user(email, password):
 	loggedIn = False
@@ -162,16 +163,17 @@ def _get_place(lat, lon):
 def _get_photo_uri(photo_id):
 	cur = mysql.connection.cursor()
 
+	path = ''
 	try:
-		path = cur.execute(f'SELECT path FROM Photo WHERE photoID={photo_id}')
+		path = cur.execute('SELECT path FROM Photo WHERE photoID=%s', (photo_id, ))
 		cur.close() 
 	except Exception as err:
 		print('Error at _get_photo_uri:', err)
 		cur.close() 
 
-	photo_uri = ""
+	photo_uri = ''
 	if path:
-		with open(path, "r") as f:
+		with open(f'photos/{path}/{photo_id}.txt', 'r') as f:
 			photo_uri = f.read()
 
 	return photo_uri
