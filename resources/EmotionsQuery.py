@@ -33,10 +33,10 @@ class EmotionsQuery(Resource):
 			try:
 				cur = mysql.connection.cursor()
 				if limit:
-					cur.execute("SELECT emotion, timestamp, photoID FROM Photo WHERE UserID=%s LIMIT %s",
+					cur.execute("SELECT emotion, timestamp, photoID, city, description FROM Photo WHERE UserID=%s ORDER BY photoID DESC LIMIT %s",
 								(user_id, int(limit)))
 				else:
-					cur.execute("SELECT emotion, timestamp, photoID FROM Photo WHERE (timestamp BETWEEN %s AND %s) AND UserID=%s",
+					cur.execute("SELECT emotion, timestamp, photoID, city, description FROM Photo WHERE (timestamp BETWEEN %s AND %s) AND UserID=%s",
 								(start_date, end_date, user_id))
 				emotions = cur.fetchall()
 				cur.close()
