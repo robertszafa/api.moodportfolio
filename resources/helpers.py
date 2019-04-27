@@ -173,20 +173,21 @@ def _get_place(lat, lon):
 	city = loc_data[0]['admin2']
 	return cc, city
 
-def _get_photo_uri(photo_id):
+def _get_photo_uri(photo_id, user_id):
 	cur = mysql.connection.cursor()
 
 	path = ''
 	try:
-		path = cur.execute('SELECT path FROM Photo WHERE photoID=%s', (photo_id, ))
+		cur.execute('SELECT path FROM Photo WHERE photoID=%s AND userID=%s', (photo_id, user_id))
+		path = cur.fetchone()['path']
 		cur.close() 
 	except Exception as err:
 		print('Error at _get_photo_uri:', err)
 		cur.close() 
-
+	
 	photo_uri = ''
 	if path:
-		with open(f'photos/{path}/{photo_id}.txt', 'r') as f:
+		with open(path, 'r') as f:
 			photo_uri = f.read()
 
 	return photo_uri

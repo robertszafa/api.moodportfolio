@@ -14,7 +14,10 @@ class PhotoUri(Resource):
         except Exception as err:
             return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'photoUri': ''})
 
-        photo_uri = _get_photo_uri(photo_id)
+        try:
+            photo_uri = _get_photo_uri(photo_id, user_id)
+        except Exception as err:
+            return jsonify({'success': False, 'error': 'databaseError', 'photoUri': ''})
 
         return jsonify({'success': True, 'error': '', 'photoUri': photo_uri})
 
