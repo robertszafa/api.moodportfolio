@@ -206,8 +206,8 @@ def _get_tag_id(tag_name):
 	cur = mysql.connection.cursor()
 	tag_id = ''
 	# check if tag already exists
-	if cur.execute("SELECT tagID FROM Tag WHERE name=%s", (tag_name)) > 0:
-		tag_id = cur.fetchone()
+	if cur.execute("SELECT tagID FROM Tag WHERE name=%s", (tag_name,)) > 0:
+		tag_id = cur.fetchone()['tagID']
 	cur.close() 
 
 	return tag_id

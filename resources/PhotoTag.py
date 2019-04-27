@@ -17,17 +17,18 @@ class PhotoTag(Resource):
         except Exception as err:
             return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'tagId': ''})
 
+        tag_id = None
         try:
             cur = mysql.connection.cursor()
 
+            # check if tag already exists
             tag_id= _get_tag_id(tag_name)
-
             if tag_id:
                 cur.execute("INSERT INTO Photo_Tag(photoID, tagID) VALUES(%s, %s)", (photo_id, tag_id))
-                cur.execute("UPDATE Tag SET count=count+1 WHERE tagID=%s", (tag_id))
+                cur.execute("UPDATE Tag SET count=count+1 WHERE tagID=%s", (tag_id,))
             # if not, create an entry for it
             else:
-                cur.execute("INSERT INTO Tag(name, count) VALUES(%s, %d)", (tag_name, 1))
+                cur.execute("INSERT INTO Tag(name, count) VALUES(%s, %s)", (tag_name, 1))
                 tag_id = cur.lastrowid
                 cur.execute("INSERT INTO Photo_Tag(photoID, tagID) VALUES(%s, %s)", (photo_id, tag_id))
 
@@ -48,10 +49,11 @@ class PhotoTag(Resource):
         except Exception as err:
             return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'photoTags': ''})
         
+        tag_id = None
         try:
             cur = mysql.connection.cursor()
 
-            if cur.execute("SELECT tagID FROM Photo_Tag WHERE photoID=%s", (photo_id)) > 0:
+            if cur.execute("SELECT tagID FROM Photo_Tag WHERE photoID=%s", (int(photo_id),)) > 0:
                 tag_id = cur.fetchall()
 
             cur.close()
