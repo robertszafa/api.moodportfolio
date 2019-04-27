@@ -81,6 +81,7 @@ class PhotoTag(Resource):
             if (cur.fetchone() < 1):
                 cur.execute("DELETE FROM Tag WHERE tagID=%s", (tag_id))
 
+            mysql.connection.commit()
             cur.close()
         except Exception as err:
             print(err)
