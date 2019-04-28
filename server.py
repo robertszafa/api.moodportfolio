@@ -15,6 +15,7 @@ from resources.PhotoUri import PhotoUri
 from resources.PhotoTag import PhotoTag
 from resources.AdminQuery import AdminQuery
 from resources.AdminQuery2 import AdminQuery2
+from resources.EditEmotions import EditEmotions
 
 api.add_resource(Register, '/Register')
 api.add_resource(UserExists, '/UserExists')
@@ -28,6 +29,7 @@ api.add_resource(PhotoTag, '/PhotoTag')
 api.add_resource(PhotoUri, '/PhotoUri')
 api.add_resource(AdminQuery, '/AdminQuery')
 api.add_resource(AdminQuery2, '/SplAdminQuery')
+api.add_resource(EditEmotions, '/EditEmotions')
 
 
 @app.route('/')
