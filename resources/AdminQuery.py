@@ -6,9 +6,24 @@ import os
 import datetime
 import json
 
+"""
+USE GUIDE:
+GET REQUEST SHOULD INCLUDE:
+{
+	'startDate' : ..
+	'endDate' : .. 
+	'city' : ..
+	'country' : ..
+	'userID' : ..
+	'tagName': ..		
+	'tagID'	 : ..
+}
+Leave any blank (eg: 'userID':"") to query all instances of it 
+(in the example - to run the query across all users.)
+"""
 
 class AdminQuery(Resource):
-	def post(self):
+	def get(self):
 		try:
 			admin_id = _authenticate_user(request)
 			#CHECK IF HE/SHE IS AN ADMIN?
@@ -66,3 +81,30 @@ class AdminQuery(Resource):
 			return jsonify({'success': False, 'error': 'databaseError', 'emotions': ''})
 
 		return jsonify({'success': True, 'error': '', 'result': emotions})
+
+	def delete(self):
+		try:
+			admin_id = _authenticate_user(request)
+			user_id = request.json.get('userID') 
+			#if all then delete everything.
+
+		except Exception as err:
+			return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken'})
+
+		where_clause = "" #delete everything
+		if user_id!="all": 
+			where_clause = "userID=%s",user_id
+		
+		try:
+			cur = mysql.connection.cursor()
+			if where_clause=="":
+				curr.execute("DELETE * FROM User")
+			else:
+				cur.execute("DELETE * FROM User WHERE %s",where_clause)
+				cur.execute("DELETE * FROM Photo WHERE %s",where_clause)
+			cur.close()
+		except Exception as err:
+			print(err)
+			return jsonify({'success': False, 'error': 'databaseError'})
+
+		return jsonify({'success': True, 'error': ''})
