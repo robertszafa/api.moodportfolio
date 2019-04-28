@@ -49,20 +49,17 @@ class PhotoTag(Resource):
         except Exception as err:
             return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'photoTags': ''})
         
-        tag_id = None
+        tags = None
         try:
             cur = mysql.connection.cursor()
-
-            if cur.execute("SELECT tagID FROM Photo_Tag WHERE photoID=%s", (int(photo_id),)) > 0:
-                tag_id = cur.fetchall()
-
+            cur.execute("SELECT name, tagID FROM Tag WHERE tagID in (SELECT tagID FROM Photo_Tag WHERE photoID=%s)", (int(photo_id),))
+            tags = cur.fetchall()
             cur.close()
         except Exception as err:
             print(err)
-            return jsonify({'success': False, 'error': 'databaseError', 'photoTags': tag_id})
+            return jsonify({'success': False, 'error': 'databaseError', 'photoTags': tags})
 
- 
-        return jsonify({'success': True, 'error': '', 'photoTags': tag_id})
+        return jsonify({'success': True, 'error': '', 'photoTags': tags})
 
 
     def delete(self):
@@ -73,15 +70,16 @@ class PhotoTag(Resource):
         except Exception as err:
             return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken'})
         
+        print('deleting, ', photo_id, ' - ', tag_id)
         try:
             cur = mysql.connection.cursor()
             cur.execute("DELETE FROM Photo_Tag WHERE photoID=%s AND tagID=%s", (photo_id, tag_id))
-            cur.execute("UPDATE Tag SET count=count-1 WHERE tagID=%s", (tag_id))
+            cur.execute("UPDATE Tag SET count=count-1 WHERE tagID=%s", (tag_id,))
 
             # delete tag from Tag table if count == 0
-            cur.execute("SELECT count FROM Tag WHERE tagID=%s", (tag_id))
-            if (cur.fetchone() < 1):
-                cur.execute("DELETE FROM Tag WHERE tagID=%s", (tag_id))
+            cur.execute("SELECT count FROM Tag WHERE tagID=%s", (tag_id,))
+            if (cur.fetchone()['count'] < 1):
+                cur.execute("DELETE FROM Tag WHERE tagID=%s", (tag_id,))
 
             mysql.connection.commit()
             cur.close()
