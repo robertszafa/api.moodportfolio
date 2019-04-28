@@ -31,6 +31,7 @@ class PhotoUri(Resource):
         print('deleting ', photo_id)
         try:
             cur = mysql.connection.cursor()
+            cur.execute("DELETE FROM Photo_Tag WHERE photoID=%s", (photo_id, ))
             cur.execute("DELETE FROM Photo WHERE photoID=%s AND userID=%s", (photo_id, user_id))
             mysql.connection.commit()
             cur.close()
