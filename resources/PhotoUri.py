@@ -28,7 +28,6 @@ class PhotoUri(Resource):
         except Exception as err:
             return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken'})
         
-        print('deleting ', photo_id)
         try:
             cur = mysql.connection.cursor()
             cur.execute("DELETE FROM Photo_Tag WHERE photoID=%s", (photo_id, ))

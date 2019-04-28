@@ -70,7 +70,6 @@ class PhotoTag(Resource):
         except Exception as err:
             return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken'})
         
-        print('deleting, ', photo_id, ' - ', tag_id)
         try:
             cur = mysql.connection.cursor()
             cur.execute("DELETE FROM Photo_Tag WHERE photoID=%s AND tagID=%s", (photo_id, tag_id))

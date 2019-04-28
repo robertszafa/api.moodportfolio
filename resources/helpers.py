@@ -175,7 +175,6 @@ def _get_place(lat, lon):
 
 def _get_photo_uri(photo_id, user_id):
 	cur = mysql.connection.cursor()
-	print('uri ', photo_id, user_id)
 
 	path = ''
 	try:
