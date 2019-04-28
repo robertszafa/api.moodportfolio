@@ -3,7 +3,7 @@ from flask_restful import Resource
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from config import mysql, mail, app
-from .helpers import _hash_password, _encode_auth_token, _get_user_id
+from .helpers import _hash_password, _encode_auth_token, _get_user_id, _authenticate_user
 from datetime import datetime, timedelta
 import jwt
 
@@ -33,6 +33,43 @@ class Register(Resource):
 
         return jsonify({'emailSent' : True, 
                         'error' : ''})
+
+    def delete(self):
+        try:
+            user_id = _authenticate_user(request)
+        except Exception as err:
+            return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken'})
+        
+        try:
+            cur = mysql.connection.cursor()
+            # get all user tags 
+            cur.execute("SELECT tagID FROM Photo_Tag WHERE photoID in (SELECT photoID FROM Photo WHERE userID=%s)", (user_id,))
+            tags = cur.fetchall()
+
+            for tag in tags:
+                tag_id = tag['tagID']
+                # count this tag
+                tag_count = cur.execute("SELECT * FROM Photo_Tag WHERE photoID in (SELECT photoID FROM Photo WHERE userID=%s) AND tagID=%s", (user_id, tag_id))
+                # update count in Tags
+                cur.execute("UPDATE Tag SET count=count-%s", (tag_count, ))
+
+            # delete user's Photo_Tags
+            cur.execute("DELETE FROM Photo_Tag WHERE photoID in (SELECT photoID FROM Photo WHERE userID=%s)", (user_id, ))
+            # delete Tag if count==0
+            cur.execute("DELETE FROM Tag WHERE count<1")
+            # delete all photos
+            cur.execute("DELETE FROM Photo WHERE userID=%s", (user_id, ))
+            # delete user
+            cur.execute("DELETE FROM User WHERE userID=%s", (user_id, ))
+
+            mysql.connection.commit()
+            cur.close()
+        except Exception as err:
+            print(err)
+            return jsonify({'success': False, 'error': 'databaseError'})
+        
+
+        return jsonify({'success': True, 'error': ''})
 
 
 @app.route('/confirm_email/<token>')
