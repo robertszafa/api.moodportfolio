@@ -43,18 +43,25 @@ class Register(Resource):
         try:
             cur = mysql.connection.cursor()
             # get all user tags 
-            cur.execute("SELECT tagID FROM Photo_Tag WHERE photoID in (SELECT photoID FROM Photo WHERE userID=%s)", (user_id,))
+            cur.execute("""SELECT tagID FROM Photo_Tag 
+                           WHERE photoID in (SELECT photoID FROM Photo WHERE userID=%s)""", 
+                           (user_id,))
+
             tags = cur.fetchall()
 
             for tag in tags:
                 tag_id = tag['tagID']
                 # count this tag
-                tag_count = cur.execute("SELECT * FROM Photo_Tag WHERE photoID in (SELECT photoID FROM Photo WHERE userID=%s) AND tagID=%s", (user_id, tag_id))
+                tag_count = cur.execute("""SELECT * FROM Photo_Tag WHERE photoID in 
+                                        (SELECT photoID FROM Photo WHERE userID=%s) AND tagID=%s""", 
+                                        (user_id, tag_id))
                 # update count in Tags
                 cur.execute("UPDATE Tag SET count=count-%s", (tag_count, ))
 
             # delete user's Photo_Tags
-            cur.execute("DELETE FROM Photo_Tag WHERE photoID in (SELECT photoID FROM Photo WHERE userID=%s)", (user_id, ))
+            cur.execute("""DELETE FROM Photo_Tag 
+                           WHERE photoID in (SELECT photoID FROM Photo WHERE userID=%s)""", 
+                           (user_id, ))
             # delete Tag if count==0
             cur.execute("DELETE FROM Tag WHERE count<1")
             # delete all photos

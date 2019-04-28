@@ -94,7 +94,8 @@ def _get_user_email(user_id):
 def _get_user_info(user_id):
     cur = mysql.connection.cursor()
     
-    if cur.execute('SELECT email, name, gender, signupDate, dob, townCity, country, nominatedContact FROM User WHERE userID=%s', [user_id]) < 1:
+    if cur.execute('''SELECT email, name, gender, signupDate, dob, townCity, country, nominatedContact 
+					  FROM User WHERE userID=%s''', [user_id]) < 1:
         cur.close() 
         return # no user with this ID
 
