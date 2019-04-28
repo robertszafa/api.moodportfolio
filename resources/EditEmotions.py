@@ -1,8 +1,7 @@
 from flask import request, jsonify
 from flask_restful import Resource
 from config import mysql
-from .helpers import _authenticate_user, _get_next_photo_id, _get_place,
-
+from .helpers import _authenticate_user, _get_next_photo_id, _get_place
 from base64 import b64decode
 import os
 import datetime
@@ -21,7 +20,7 @@ class EditEmotions(Resource):
                 'emotion' : '', 'dominantEmotion': ''})
 
         emotions = {'neutral' : 0, 'happiness' : 0, 'surprise' : 0,
-                    'sadness' : 0,'anger' : 0, 'disgust' : 0,  , 
+                    'sadness' : 0,'anger' : 0, 'disgust' : 0, 
                     'fear' : 0, 'contempt' : 0 }
         emotions[dominantEmotionName] = 100
 
