@@ -11,6 +11,7 @@ import json
 BASED_ON_ALL = 'all'
 BASED_ON_EMOTION = 'emotion'
 BASED_ON_TAG = 'tag'
+BASED_ON_TAG_USAGE = 'tagUsage'
 
 
 class EmotionsQuery(Resource):
@@ -27,8 +28,10 @@ class EmotionsQuery(Resource):
 		if start_date and end_date:
 			start_date = _convert_to_datetime(start_date)
 			end_date = _convert_to_datetime(end_date)
+		
+		print(based_on, start_date, end_date)
 
-		emotions = None
+		result = None
 		if based_on == BASED_ON_ALL:
 			try:
 				cur = mysql.connection.cursor()
@@ -38,11 +41,23 @@ class EmotionsQuery(Resource):
 				else:
 					cur.execute("SELECT emotion, timestamp, photoID, city, description FROM Photo WHERE (timestamp BETWEEN %s AND %s) AND UserID=%s",
 								(start_date, end_date, user_id))
-				emotions = cur.fetchall()
+				result = cur.fetchall()
 				cur.close()
 			except Exception as err:
 				print(err)
 				return jsonify({'success': False, 'error': 'databaseError', 'emotions': ''})
+		elif based_on == BASED_ON_TAG_USAGE:
+			try:
+				cur = mysql.connection.cursor()
+				cur.execute("SELECT name, tagID, count FROM Tag WHERE tagID in (SELECT tagID FROM Photo_Tag WHERE photoID in (SELECT photoID FROM Photo WHERE (timestamp BETWEEN %s AND %s) AND userID=%s)) ORDER BY count DESC", (start_date, end_date, user_id))
+				result = cur.fetchall()
+				print('res ', result)
+				cur.close()
+			except Exception as err:
+				print(err)
+				return jsonify({'success': False, 'error': 'databaseError', 'result': result})
+
+
 		
 
-		return jsonify({'success': True, 'error': '', 'result': emotions})
+		return jsonify({'success': True, 'error': '', 'result': result})
