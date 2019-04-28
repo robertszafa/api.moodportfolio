@@ -25,13 +25,12 @@ any -> write your own query in "splSQLQuery"
 """
 
 class AdminQuery2(Resource):
-
-    def get(self):
+	def get(self):
 		try:
 			admin_id = _authenticate_user(request)
 			#CHECK IF HE/SHE IS AN ADMIN?
 			based_on = request.json.get('basedOn')
-            spl_SQL_query = request.json.get('splSQLQuery')
+			spl_SQL_query = request.json.get('splSQLQuery')
 
 		except Exception as err:
 			return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'emotions': ''})
@@ -39,12 +38,12 @@ class AdminQuery2(Resource):
 		res=None
 		try:
 			cur = mysql.connection.cursor()
-            if based_on=='#users':
-                cur.execute("SELECT COUNT(*) FROM User")
-            elif based_on=='popularTag':
-                cur.execute("SELECT name,count FROM Tag WHERE count = (SELECT max(count) FROM Tag)")
-            else: #if based_on=="any":
-                cur.execute(spl_SQL_query)
+			if based_on=='#users':
+				cur.execute("SELECT COUNT(*) FROM User")
+			elif based_on=='popularTag':
+				cur.execute("SELECT name,count FROM Tag WHERE count = (SELECT max(count) FROM Tag)")
+			else: #if based_on=="any":
+				cur.execute(spl_SQL_query)
 
 			res = cur.fetchall()
 			cur.close()
