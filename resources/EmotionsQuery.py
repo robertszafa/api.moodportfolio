@@ -24,13 +24,14 @@ class EmotionsQuery(Resource):
 			tag_name = request.headers.get('TagName')
 			limit = request.headers.get('Limit')
 		except Exception as err:
-			return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'emotions': ''})
+			return jsonify({'success': False, 'error': 'incorrectOrExpiredAuthToken', 'result': ''})
 
 		if start_date and end_date:
-			start_date = _convert_to_datetime(start_date)
-			end_date = _convert_to_datetime(end_date)
-		
-		print(based_on, start_date, end_date)
+			try:
+				start_date = _convert_to_datetime(start_date)
+				end_date = _convert_to_datetime(end_date)
+			except Exception as err:
+				return jsonify({'success': False, 'error': 'date not dd/mm/yyyy', 'result': ''})
 
 		result = None
 		if based_on == BASED_ON_ALL:
@@ -49,7 +50,7 @@ class EmotionsQuery(Resource):
 				cur.close()
 			except Exception as err:
 				print(err)
-				return jsonify({'success': False, 'error': 'databaseError', 'emotions': ''})
+				return jsonify({'success': False, 'error': 'databaseError', 'result': ''})
 		elif based_on == BASED_ON_TAG_USAGE:
 			try:
 				cur = mysql.connection.cursor()
