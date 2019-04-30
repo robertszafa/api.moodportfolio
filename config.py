@@ -2,8 +2,7 @@ from flask import Flask, Blueprint
 from flask_mysqldb import MySQL
 from flask_restful import Api
 from flask_cors import CORS
-from flask_mail import Mail
-
+from mailjet_rest import Client
 
 
 
@@ -12,6 +11,7 @@ CORS(app)
 
 
 # Config
+
 # MYSQL
 app.config['SECRET_KEY'] = 'the quick brown fox jumps over the lazy   dog'
 app.config['MYSQL_HOST'] = 'localhost'
@@ -19,20 +19,13 @@ app.config['MYSQL_USER'] = 'team40'
 app.config['MYSQL_PASSWORD'] = 'Password12345!'
 app.config['MYSQL_DB'] = 'moodportfolio'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
-# EMAIL
-app.config['MAIL_SERVER']='smtp.gmail.com'
-app.config['MAIL_PORT']=465
-app.config['MAIL_USE_TLS']=False
-app.config['MAIL_USE_SSL']=True
-app.config['MAIL_USERNAME']='moodportfol.io@gmail.com'
-app.config['MAIL_PASSWORD']='Password12345!'
-
 # init MYSQL
 mysql = MySQL(app)
 
-# init mail
-mail = Mail(app)
-
+# EMAIL
+api_key = '6d3e2eff8e6c4cb73ef8f7e0dfcfbe2f'
+api_secret = 'a256c5bb0a86d1e99f5d18678e4649a9'
+mailjet = Client(auth=(api_key, api_secret), version='v3.1')
 
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
