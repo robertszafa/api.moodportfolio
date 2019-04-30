@@ -1,8 +1,8 @@
 from flask import request, jsonify
 from flask_restful import Resource
 from flask_mail import Message
-from config import mysql, mail, app
-from .helpers import _hash_password, _encode_auth_token, _get_user_id, _authenticate_user, _verify_user, _get_user_email
+from config import mysql, app
+from .helpers import _hash_password, _encode_auth_token, _get_user_id, _authenticate_user, _verify_user, _get_user_email, _send_email
 import random
 import string
 
@@ -24,12 +24,13 @@ class ResetPassword(Resource):
         except Exception as e:
             return jsonify({'emailSent' : False, 'error' : 'databaseError'})
         
-        msg = Message('Your New Password - Moodportfolio', sender='Moodportfolio', recipients=[email])
-        msg.body = f'Your new password is: {new_password}\n\nYou should change your password after you log in again'
-        mail.send(msg)
+        subject = f'Moodportfolio - Reset password!'
+        msg_text = f'Your new password is: {new_password}\n\nYou should change your password after you log in again'
+        msg_html = f"<h3>Your new password is: {new_password}\n\nYou should change your password after you log in again</h3>"
 
-        return jsonify({'emailSent' : True, 
-                        'error' : ''})
+        _send_email(subject, msg_text, email, html=msg_html)
+
+        return jsonify({'emailSent' : True, 'error' : ''})
 
     def put(self):
         try:

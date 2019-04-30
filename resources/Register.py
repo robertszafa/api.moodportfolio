@@ -2,8 +2,8 @@ from flask import request, jsonify, url_for, redirect
 from flask_restful import Resource
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
-from config import mysql, mail, app
-from .helpers import _hash_password, _encode_auth_token, _get_user_id, _authenticate_user
+from config import mysql, app
+from .helpers import _hash_password, _encode_auth_token, _get_user_id, _authenticate_user, _send_email
 from datetime import datetime, timedelta
 import jwt
 
@@ -21,18 +21,20 @@ class Register(Resource):
             registration_token = _encode_registration_token(name, password)
         except:
             return jsonify({'emailSent' : False, 'error' : 'incorrectInput'})
-        
+
         token = s.dumps(email, salt='email-confirm')
-        msg = Message('Almost there! Confirm Your Email', sender='Moodportfolio', recipients=[email])
-        link = url_for('confirm_email', 
-                        token=token, 
+        subject = f'Almost there {name}! Confirm Your Email'
+        link = url_for('confirm_email',
+                        token=token,
                         registration_token=registration_token,
                         _external=True)
-        msg.body = f'Please click on the confirmation link below\n\n{link}'
-        mail.send(msg)
+        msg_text = f'Dear {name}, click the link below to verify your account.\n\n{link}'
+        msg_html = f"<h3>Dear {name}, click <a href='{link}'>here</a> to verify your account.</h3>"
 
-        return jsonify({'emailSent' : True, 
-                        'error' : ''})
+        _send_email(subject, msg_text, email, name=name, html=msg_html)
+
+
+        return jsonify({'emailSent' : True, 'error' : ''})
 
     def delete(self):
         try:
