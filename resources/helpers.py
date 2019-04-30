@@ -2,10 +2,36 @@ from datetime import datetime, timedelta
 import jwt
 from flask import request, jsonify
 from passlib.hash import sha256_crypt
-from config import app, mysql
+from config import app, mysql, mailjet
 import reverse_geocoder as rg
 
 
+# general purpose, global method to send out emails using mailjets REST API
+def _send_email(subject, text, receiver_email, name=None, html=None):
+    print('sending... email')
+    with app.app_context():
+        data = {
+                'Messages': [
+                        {
+                        "From": {
+                                "Email": "hello@moodportfolio.ml",
+                                "Name": "moodportfolio.ml"
+                        },
+                        "To": [
+                                {
+                                        "Email": receiver_email,
+                                        "Name": name,
+                                }
+                        ],
+                        "Subject": subject,
+                        "TextPart": text,
+                        "HTMLPart": html,
+                        }
+                    ]
+                }
+        result = mailjet.send.create(data=data)
+        print(result.status_code)
+        print(result.json())
 
 def _authenticate_user(request):
 	try:
