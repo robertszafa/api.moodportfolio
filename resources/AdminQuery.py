@@ -28,8 +28,6 @@ class AdminQuery(Resource):
 		queryingTags = False
 		
 		if start_date!='' and end_date!='':
-			start_date = _convert_to_datetime(start_date)
-			end_date = _convert_to_datetime(end_date)
 			where_clause.append("P.timestamp BETWEEN \""+start_date +"\" AND \""+ end_date + "\"")
 
 		if city!='':
