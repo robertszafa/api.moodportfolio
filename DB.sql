@@ -33,7 +33,7 @@ CREATE TABLE Photo
     emotion JSON, 
     city VARCHAR(255), 
     country CHAR(2), 
-    description VARCHAR(280), 
+	description VARCHAR(280), 
     PRIMARY KEY (photoID),
     FOREIGN KEY (userID) REFERENCES User (userID)
 );
@@ -57,5 +57,6 @@ CREATE TABLE Photo_Tag
     FOREIGN KEY (photoID) REFERENCES Photo (photoID), 
     FOREIGN KEY (tagID) REFERENCES Tag (tagID)
 );
+
 
 

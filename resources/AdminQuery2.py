@@ -12,24 +12,11 @@ import os
 import datetime
 import json
 
-"""
-USE GUIDE:
-GET REQUEST SHOULD INCLUDE:
-{
-	'basedOn' : "#users" or "popularTag" or "any"
-	'splSQLQuery' : "select * from ..... "
-}
-#users -> Number of users registered
-popularTag -> Most popular tag
-any -> write your own query in "splSQLQuery"
-"""
-
 class AdminQuery2(Resource):
-	def get(self):
+	def post(self):
 		try:
 			admin_id = _authenticate_user(request)
 			#CHECK IF HE/SHE IS AN ADMIN?
-			based_on = request.json.get('basedOn')
 			spl_SQL_query = request.json.get('splSQLQuery')
 
 		except Exception as err:
@@ -38,12 +25,7 @@ class AdminQuery2(Resource):
 		res=None
 		try:
 			cur = mysql.connection.cursor()
-			if based_on=='#users':
-				cur.execute("SELECT COUNT(*) FROM User")
-			elif based_on=='popularTag':
-				cur.execute("SELECT name,count FROM Tag WHERE count = (SELECT max(count) FROM Tag)")
-			else: #if based_on=="any":
-				cur.execute(spl_SQL_query)
+			cur.execute(spl_SQL_query)
 
 			res = cur.fetchall()
 			cur.close()

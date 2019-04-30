@@ -6,24 +6,8 @@ import os
 import datetime
 import json
 
-"""
-USE GUIDE:
-GET REQUEST SHOULD INCLUDE:
-{
-	'startDate' : ..
-	'endDate' : .. 
-	'city' : ..
-	'country' : ..
-	'userID' : ..
-	'tagName': ..		
-	'tagID'	 : ..
-}
-Leave any blank (eg: 'userID':"") to query all instances of it 
-(in the example - to run the query across all users.)
-"""
-
 class AdminQuery(Resource):
-	def get(self):
+	def post(self):
 		try:
 			admin_id = _authenticate_user(request)
 			#CHECK IF HE/SHE IS AN ADMIN?
@@ -44,36 +28,39 @@ class AdminQuery(Resource):
 		queryingTags = False
 		
 		if start_date!='' and end_date!='':
-			start_date = _convert_to_datetime(start_date)
-			end_date = _convert_to_datetime(end_date)
-			where_clause.append("P.timestamp BETWEEN %s AND %s",(start_date, end_date))
+			where_clause.append("P.timestamp BETWEEN \""+start_date +"\" AND \""+ end_date + "\"")
 
 		if city!='':
-			where_clause.append("P.city=%s",city)
+			where_clause.append("P.city=\""+city+"\"")
 		
 		if country!='':
-			where_clause.append("P.country=%s",country)
+			where_clause.append("P.country=\""+country+"\"")
 
 		if user_id!='':
-			where_clause.append("P.UserID=%s",user_id)
+			where_clause.append("P.UserID="+user_id)
 
 		if tag_name!='':
 			queryingTags = True
-			where_clause.append("T.name=%s",city)
+			where_clause.append("T.name=\""+tag_name+"\"")
 
 		if tag_id!='':
 			queryingTags = True
-			where_clause.append("PT.tagID=%s",city)
+			where_clause.append("PT.tagID="+tag_id)
 
 		where_clause_STR = " AND ".join(where_clause)
+		
+
+		sqlStmt = ""
+		if not queryingTags:
+			sqlStmt = "SELECT emotion FROM Photo P WHERE "+ where_clause_STR
+		else:
+			sqlStmt = "SELECT P.emotion, P.timestamp, P.photoID, P.city, P.country, T.name, PT.tagID FROM Photo P NATURAL JOIN Photo_Tag PT NATURAL JOIN Tag T WHERE "+ where_clause_STR
+		
+		print("[ADMIN_QUERY]sql stmt made: ", sqlStmt)
 		emotions=None
 		try:
 			cur = mysql.connection.cursor()
-			if not queryingTags:
-				cur.execute("SELECT * FROM Photo P WHERE %s", where_clause_STR)
-			else:
-				cur.execute("SELECT P.emotion, P.timestamp, P.photoID, P.city, P.country, T.name, PT.tagID FROM Photo P NATURAL JOIN Photo_Tag PT NATURAL JOIN Tag T WHERE %s", where_clause_STR)
-
+			cur.execute(sqlStmt)
 			emotions = cur.fetchall()
 			cur.close()
 		except Exception as err:
@@ -85,7 +72,7 @@ class AdminQuery(Resource):
 	def delete(self):
 		try:
 			admin_id = _authenticate_user(request)
-			user_id = request.json.get('userID') 
+			user_id = request.args.get('userID') 
 			#if all then delete everything.
 
 		except Exception as err:
