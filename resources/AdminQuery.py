@@ -72,7 +72,7 @@ class AdminQuery(Resource):
 	def delete(self):
 		try:
 			admin_id = _authenticate_user(request)
-			user_id = request.args.get('userID') 
+			user_id = request.json.get('userID') 
 			#if all then delete everything.
 
 		except Exception as err:
@@ -80,15 +80,18 @@ class AdminQuery(Resource):
 
 		where_clause = "" #delete everything
 		if user_id!="all": 
-			where_clause = "userID=%s",user_id
-		
+			where_clause = "userID="+user_id
+		print("DELETE FROM User ", where_clause)
 		try:
 			cur = mysql.connection.cursor()
 			if where_clause=="":
-				curr.execute("DELETE * FROM User")
+				cur.execute("DELETE FROM User")
 			else:
-				cur.execute("DELETE * FROM User WHERE %s",where_clause)
-				cur.execute("DELETE * FROM Photo WHERE %s",where_clause)
+				print("here in else clasue DEL QUERY..")
+				cur.execute("DELETE FROM User WHERE " + where_clause)
+				cur.execute("DELETE FROM Photo WHERE " + where_clause)
+				
+			mysql.connection.commit()
 			cur.close()
 		except Exception as err:
 			print(err)
