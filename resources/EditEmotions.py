@@ -9,7 +9,7 @@ import random
 import json
 
 class EditEmotions(Resource):
-    def put(self):
+    def post(self):
         try:
             user_id = _authenticate_user(request)
             photo_id = request.json.get('photoID')
