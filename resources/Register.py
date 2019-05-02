@@ -31,7 +31,18 @@ class Register(Resource):
         msg_text = f'Dear {name}, click the link below to verify your account.\n\n{link}'
         msg_html = f"<h3>Dear {name}, click <a href='{link}'>here</a> to verify your account.</h3>"
 
-        _send_email(subject, msg_text, email, name=name, html=msg_html)
+        # _send_email(subject, msg_text, email, name=name, html=msg_html)
+
+        headers = {
+            'Authorization': 'ba365b103bb3218b3ba1b11660a456c29670ce7d',
+            'Content-Type': 'application/json',
+        }
+
+        data = '{\n    "options": {\n      "sandbox": true\n    },\n    "content": {\n      "from": "testing@sparkpostbox.com",\n      "subject": "Thundercats are GO!!!",\n      "text": "Welcome"\n    },\n    "recipients": [{ "address": "moodportfol.io@gmail.com" }]\n}'
+
+        response = requests.post('https://api.eu.sparkpost.com/api/v1/transmissions', headers=headers, data=data)
+
+        return jsonify({'emailSent' : True, 'error' : ''})
 
 
         return jsonify({'emailSent' : True, 'error' : ''})
