@@ -25,10 +25,9 @@ class ResetPassword(Resource):
             return jsonify({'emailSent' : False, 'error' : 'databaseError'})
         
         subject = f'Moodportfolio - Reset password!'
-        msg_text = f'Your new password is: {new_password}\n\nYou should change your password after you log in again'
-        msg_html = f"<h3>Your new password is: {new_password}\n\nYou should change your password after you log in again</h3>"
+        body = f'Your new password is: {new_password}\n\nYou should change your password after you log in again'
 
-        _send_email(subject, msg_text, email, html=msg_html)
+        _send_email(subject, body, email)
 
         return jsonify({'emailSent' : True, 'error' : ''})
 

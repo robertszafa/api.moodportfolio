@@ -2,36 +2,25 @@ from datetime import datetime, timedelta
 import jwt
 from flask import request, jsonify
 from passlib.hash import sha256_crypt
-from config import app, mysql, mailjet
+from config import app, mysql
 import reverse_geocoder as rg
+from sparkpost import SparkPost
 
 
 # general purpose, global method to send out emails using mailjets REST API
-def _send_email(subject, text, receiver_email, name=None, html=None):
-    print('sending... email')
-    with app.app_context():
-        data = {
-                'Messages': [
-                        {
-                        "From": {
-                                "Email": "hello@moodportfolio.ml",
-                                "Name": "moodportfolio.ml"
-                        },
-                        "To": [
-                                {
-                                        "Email": receiver_email,
-                                        "Name": name,
-                                }
-                        ],
-                        "Subject": subject,
-                        "TextPart": text,
-                        "HTMLPart": html,
-                        }
-                    ]
-                }
-        result = mailjet.send.create(data=data)
-        print(result.status_code)
-        print(result.json())
+def _send_email(subject, body, email):
+	sp = SparkPost('ba365b103bb3218b3ba1b11660a456c29670ce7d', 'https://api.eu.sparkpost.com')
+
+	response = sp.transmissions.send(
+		use_sandbox=False,
+		recipients=[email],
+		html=body,
+		from_email='moodportfol.io@gmail.com',
+		subject=subject
+	)
+
+	print(response)
+
 
 def _authenticate_user(request):
 	try:
